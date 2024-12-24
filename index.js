@@ -1,58 +1,38 @@
 'use strict';
 
 const express = require('express');
+var cors = require('cors');
 const app = express();
+app.use(cors());
 
-// define endpoint for exercise 1 here
-app.get('/math/circle/:r', (req, res) => {
-  const radius = parseFloat(req.params.r)
+let categories = ['funnyJoke', 'lameJoke'];
 
-  const area = Math.PI * Math.pow(radius, 2);
-  const circumference = 2 * Math.PI * radius;
+let funnyJoke = [
+  { 'joke': 'Dlaczego komputer poszedł do lekarza?', 'response': 'Bo złapał wirusa!' },
+  { 'joke': 'Dlaczego komputer nie może być głodny?', 'response': 'Bo ma pełen dysk!' },
+  { 'joke': 'Co mówi jeden bit do drugiego?', 'response': '„Trzymaj się, zaraz się przestawiamy!”' }
+];
 
-  const result = {
-    radius: radius,
-    area: area,
-    circumference: circumference
-  };
+let lameJoke = [
+  { 'joke': 'Dlaczego programiści preferują noc?', 'response': 'Bo w nocy jest mniej bugów do łapania!' },
+  { 'joke': 'Jak nazywa się bardzo szybki programista?', 'response': 'Błyskawiczny kompilator!' }
+];
 
-  res.json(result);
+// API endpoints for jokes
+app.get('/jokebook/categories', (req, res) => {
+  return res.json(categories);
 });
 
-app.get('/math/rectangle/:width/:height', (req, res) => {
-  const width = parseFloat(req.params.width);
-  const height = parseFloat(req.params.height);
-
-  const area = width * height;
-  const perimeter = (width + height) * 2;
-
-  const result = {
-    area: area,
-    perimeter: perimeter
+app.get('/jokebook/joke/:category', (req, res) => {
+  const category = req.params.category;
+  if (!categories.includes(category)) {
+    return res.json({ 'error': `no jokes for category ${category}` });
   }
-  res.json(result);
+  
+  let jokeList = category === 'funnyJoke' ? funnyJoke : lameJoke;
+  const randomJoke = jokeList[Math.floor(Math.random() * jokeList.length)];
+  return res.json(randomJoke);
 });
-
-app.get('/math/power/:base/:exponent', (req, res) => {
-  const base = parseFloat(req.params.base);
-  const exponent = parseFloat(req.params.exponent);
-
-  let result = Math.pow(base, exponent);
-
-  if (req.query.root === 'true') {
-    const rootResult = Math.sqrt(base);
-    return res.json({ root: rootResult });
-  }
-
-  return res.json({ result });
-});
-
-
-//TODO2
-
-
-//TODO3
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
